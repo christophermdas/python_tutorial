@@ -1,243 +1,803 @@
-# The Complete Guide to the JavaScript Language
+# JAVASCRIPT.md
 
-This document is a comprehensive, in-depth guide to the JavaScript language, designed for both beginners and experienced developers. It covers everything from the fundamental building blocks to the most advanced, modern features.
-
----
-
-# Part 1: JavaScript Fundamentals
+Welcome to your complete, end-to-end **JavaScript tutorial (ES5 → ES2025)**.  
+This guide is tutorial-style: **theory → examples → mini exercises**, covering fundamentals, deep language mechanics, modern features, and practical browser/Node essentials.
 
 ---
 
-## Chapter 1: Getting Started
-
-### What is JavaScript?
-JavaScript (JS) is a high-level, interpreted programming language that is one of the core technologies of the World Wide Web, alongside HTML and CSS. Initially used for client-side scripting in web browsers, it has since evolved into a versatile language used for server-side development (Node.js), mobile apps (React Native), desktop apps (Electron), and more.
-
-### Setting Up Your Environment
-
-You don't need any special tools to start with JavaScript.
-
-*   **Browser Console:** Every modern web browser has a built-in JavaScript console. You can open it by right-clicking on a webpage, selecting "Inspect," and then clicking the "Console" tab.
-*   **Node.js:** For running JavaScript outside the browser, you can install Node.js from [nodejs.org](https://nodejs.org/). This allows you to run `.js` files directly from your terminal (`node your_script.js`).
+# Part 1: Fundamentals
 
 ---
 
-## Chapter 2: Variables and Scope
+## Chapter 1.1: What Is JavaScript?
 
-Variables are containers for storing data values.
+### Section 1.1.1: Language Overview
 
-### Declaring Variables: `var`, `let`, `const`
+**Theory**  
+JavaScript (JS) is a **high-level, multi-paradigm, dynamically typed** language. It runs primarily in:
 
-Modern JavaScript provides three keywords for declaring variables, each with different scoping rules.
+- **Browsers** (front-end): drives interactivity using Web APIs.
+- **Servers** (Node.js, Deno, Bun): builds backends, CLIs, tools.
+- **Edge/serverless** runtimes (Cloudflare Workers, Vercel Edge).
+- **Mobile/desktop** via frameworks (React Native, Electron).
 
-*   `var`: The original way to declare variables. It is **function-scoped**.
-*   `let`: Introduced in ES6 (2015). It is **block-scoped**. This is the preferred way to declare a variable whose value can change.
-*   `const`: Also introduced in ES6. It is **block-scoped** and stands for "constant." The value cannot be reassigned after it's declared. This is the preferred default.
+JavaScript uses a **single-threaded event loop** model but supports concurrency through async APIs.
 
-```javascript
-// var is function-scoped
-function varTest() {
-  var x = 1;
-  if (true) {
-    var x = 2;  // same variable!
-    console.log(x);  // 2
+**Why it matters**  
+JS is everywhere. Mastering the language (not just frameworks) makes you effective across web, backend, tooling, and automation.
+
+---
+
+## Chapter 1.2: Setup
+
+### Section 1.2.1: Node + npm
+
+**Theory**  
+Node.js lets you run JavaScript outside the browser. `npm` is the package manager and script runner.
+
+```bash
+node -v
+npm -v
+```
+
+Initialize a project:
+
+```bash
+mkdir my-js && cd my-js
+npm init -y
+```
+
+---
+
+### Section 1.2.2: Browser DevTools
+
+**Theory**  
+Every major browser ships DevTools with a **Console**, **Network**, **Sources**, and **Performance** tab. You’ll use them for debugging, profiling, and inspecting DOM/network activity.
+
+Try in console:
+
+```js
+console.log("Hello from DevTools!");
+```
+
+---
+
+### Section 1.2.3: ES Modules vs CommonJS
+
+**Theory**  
+JavaScript has two module systems:
+
+- **ES Modules (ESM)** ✅: standard in modern JS.
+- **CommonJS (CJS)** ✅: legacy Node system.
+
+**ESM**
+```js
+// math.js
+export const add = (a, b) => a + b;
+export default function mul(a, b) { return a * b; }
+
+// main.js
+import mul, { add } from "./math.js";
+```
+
+**CommonJS**
+```js
+// math.cjs
+const add = (a,b) => a+b;
+module.exports = { add };
+
+// main.cjs
+const { add } = require("./math.cjs");
+```
+
+**Runtime note**  
+Node uses ESM when `"type": "module"` is set in `package.json`.
+
+---
+
+## Chapter 1.3: Variables and Scoping
+
+### Section 1.3.1: var, let, const
+
+**Theory**  
+JavaScript has three declarations:
+
+- `var` ✅: function-scoped, hoisted, legacy.
+- `let` ✅: block-scoped, reassignable.
+- `const` ✅: block-scoped, **not reassignable** (but objects can mutate).
+
+```js
+var a = 1;
+let b = 2;
+const c = 3;
+```
+
+Prefer **`const` by default**, `let` if reassignment is needed, avoid `var`.
+
+---
+
+### Section 1.3.2: Hoisting and Temporal Dead Zone
+
+**Theory**  
+Declarations are “hoisted” (moved to top of scope):
+
+- `var` initializes to `undefined`.
+- `let/const` hoist but **cannot be used before declaration** (TDZ).
+
+```js
+console.log(x); // undefined
+var x = 10;
+
+// console.log(y); // ReferenceError (TDZ)
+let y = 20;
+```
+
+---
+
+## Chapter 1.4: Data Types
+
+### Section 1.4.1: Primitives vs References
+
+**Theory**  
+JavaScript types:
+
+**Primitives (immutable)**
+| Type | Example | Notes |
+|---|---|---|
+| number | `42`, `3.14` | 64-bit float |
+| bigint | `999n` | arbitrary integer |
+| string | `"hi"` | UTF-16 |
+| boolean | `true` | |
+| undefined | `let a;` | unset |
+| null | `let a=null;` | intentional empty |
+| symbol | `Symbol("id")` | unique keys |
+
+**Reference types (mutable)**  
+Objects, arrays, functions, maps, sets, dates, etc.
+
+```js
+const n = 1;           // primitive
+const obj = { a: 1 };  // reference
+```
+
+---
+
+### Section 1.4.2: typeof and Type Checks
+
+```js
+typeof 10;          // "number"
+typeof 10n;         // "bigint"
+typeof "x";         // "string"
+typeof null;        // "object" (historical quirk)
+
+Array.isArray([]);  // true
+```
+
+---
+
+## Chapter 1.5: Type Coercion and Equality
+
+### Section 1.5.1: Truthy / Falsy
+
+**Theory**  
+Falsy values are only:
+
+`false, 0, -0, 0n, "", null, undefined, NaN`
+
+Everything else is truthy.
+
+```js
+if ("0") console.log("truthy"); // runs
+if (0) console.log("nope");     // doesn't run
+```
+
+---
+
+### Section 1.5.2: == vs ===
+
+**Theory**  
+- `==` performs coercion (loose).
+- `===` compares type + value (strict). Prefer strict.
+
+```js
+0 == false;   // true
+0 === false;  // false
+"5" + 1;      // "51"
+"5" - 1;      // 4
+```
+
+---
+
+## Chapter 1.6: Operators
+
+### Section 1.6.1: Core Operators
+
+```js
+// Arithmetic
++ - * / % **
+
+// Comparison
+> < >= <= == === != !==
+
+// Logical
+&& || !
+```
+
+---
+
+### Section 1.6.2: Modern Operators
+
+**Optional chaining** ✅
+```js
+const city = user?.profile?.city;
+```
+
+**Nullish coalescing** ✅  
+Only falls back on `null` or `undefined`.
+
+```js
+const name = input ?? "Anonymous";
+```
+
+**Logical assignment** ✅
+```js
+a ||= 10;   // if a is falsy
+b &&= 20;   // if b is truthy
+c ??= 30;   // if c is nullish
+```
+
+---
+
+## Chapter 1.7: Control Flow
+
+### Section 1.7.1: Conditionals
+
+```js
+if (x > 10) { ... }
+else if (x > 5) { ... }
+else { ... }
+```
+
+Ternary:
+
+```js
+const msg = ok ? "yes" : "no";
+```
+
+---
+
+### Section 1.7.2: switch
+
+```js
+switch (day) {
+  case "Sat":
+  case "Sun":
+    rest();
+    break;
+  default:
+    work();
+}
+```
+
+---
+
+### Section 1.7.3: Loops and Labels
+
+```js
+for (let i=0; i<3; i++) {}
+while (cond) {}
+do {} while (cond);
+```
+
+`for...of` vs `for...in`:
+
+```js
+for (const v of [10,20]) console.log(v); // values
+for (const k in {a:1,b:2}) console.log(k); // keys
+```
+
+Labels (rare, but exists):
+
+```js
+outer:
+for (let i=0;i<3;i++){
+  for (let j=0;j<3;j++){
+    if (j===1) continue;
+    if (i===2) break outer;
   }
-  console.log(x);  // 2
-}
-
-// let is block-scoped
-function letTest() {
-  let x = 1;
-  if (true) {
-    let x = 2;  // different variable
-    console.log(x);  // 2
-  }
-  console.log(x);  // 1
 }
 ```
 
-### Hoisting
-`var` declarations are "hoisted" to the top of their scope, meaning you can use a variable before it has been declared. `let` and `const` are also hoisted, but they are not initialized, which creates a "Temporal Dead Zone" where you cannot access them before the declaration.
+---
 
-```javascript
-console.log(myVar); // undefined (due to hoisting)
-var myVar = 5;
+## Chapter 1.8: Functions and Closures
 
-// console.log(myLet); // ReferenceError: Cannot access 'myLet' before initialization
-let myLet = 10;
+### Section 1.8.1: Function Forms
+
+Declaration:
+
+```js
+function add(a, b) { return a + b; }
 ```
 
----
+Expression:
 
-## Chapter 3: Data Types
+```js
+const add2 = function(a, b) { return a + b; };
+```
 
-JavaScript has several primitive data types and one complex data type.
+Arrow function ✅:
 
-### Primitive Types
-1.  **String**: A sequence of characters.
-    ```javascript
-    let name = "Alice";
-    let greeting = 'Hello, world!';
-    ```
-2.  **Number**: Represents both integer and floating-point numbers.
-    ```javascript
-    let age = 30;
-    let price = 19.99;
-    ```
-3.  **Boolean**: Represents `true` or `false`.
-    ```javascript
-    let isActive = true;
-    ```
-4.  **`null`**: Represents the intentional absence of any object value. It is a primitive value, but `typeof null` confusingly returns `"object"`.
-    ```javascript
-    let user = null;
-    ```
-5.  **`undefined`**: A variable that has been declared but not assigned a value has the type `undefined`.
-    ```javascript
-    let city; // city is undefined
-    ```
-6.  **Symbol**: A unique and immutable primitive value, often used as an identifier for object properties.
-    ```javascript
-    const id = Symbol('id');
-    ```
-7.  **BigInt**: For integers of arbitrary length.
-    ```javascript
-    const bigNumber = 1234567890123456789012345678901234567890n;
-    ```
+```js
+const add3 = (a, b) => a + b;
+```
 
-### The `object` Type
-An object is a collection of key-value pairs. Arrays, functions, and maps are all specialized types of objects.
+**Arrow caveat:** no own `this`, no `arguments`, can’t be used with `new`.
 
 ---
 
-## Chapter 4: Operators
+### Section 1.8.2: Default Params, Rest, Spread
 
-JavaScript has a wide range of operators to perform computations.
-
-*   **Arithmetic:** `+`, `-`, `*`, `/`, `%` (modulus), `**` (exponentiation), `++` (increment), `--` (decrement).
-*   **Assignment:** `=`, `+=`, `-=`, `*=`, `/=`.
-*   **Comparison:** `==` (loose equality, with type coercion), `===` (strict equality, no type coercion), `!=`, `!==`, `>`, `<`, `>=`, `<=`.
-*   **Logical:** `&&` (AND), `||` (OR), `!` (NOT).
-*   **Ternary Operator:** A shortcut for an `if` statement.
-    ```javascript
-    const age = 20;
-    const message = age >= 18 ? "Adult" : "Minor";
-    ```
-*   **Nullish Coalescing Operator (`??`):** Returns the right-hand side if the left-hand side is `null` or `undefined`.
-    ```javascript
-    let volume = 0;
-    const setting = volume ?? 50; // setting will be 0
-    const oldDefault = volume || 50; // oldDefault would be 50, which is often not desired
-    ```
-
----
-
-# Part 2: Control Flow and Functions
-
----
-
-## Chapter 5: Control Flow
-
-*   **`if...else`**: Executes a block of code if a condition is true.
-*   **`switch`**: Selects one of many code blocks to be executed.
-*   **Loops**:
-    *   `for`: Loops through a block of code a number of times.
-    *   `while`: Loops while a condition is true.
-    *   `for...in`: Loops through the properties of an object.
-    *   `for...of`: Loops over iterable objects like arrays and strings. (Modern standard for iteration).
-
-    ```javascript
-    const fruits = ["apple", "banana", "cherry"];
-    for (const fruit of fruits) {
-      console.log(fruit);
-    }
-    ```
-
----
-
-## Chapter 6: Functions
-
-Functions are blocks of code designed to perform a particular task.
-
-### Arrow Functions
-Arrow functions offer a shorter syntax and a non-binding of `this`.
-
-```javascript
-// Traditional
-function greet(name) {
-  return "Hello, " + name;
+```js
+function greet(name = "world") {
+  return `Hi ${name}`;
 }
 
-// Arrow
-const greetArrow = name => `Hello, ${name}`;
+function sum(...nums) {
+  return nums.reduce((a,b)=>a+b, 0);
+}
+
+const arr = [1,2,3];
+const arr2 = [...arr, 4];
+
+const obj = {a:1};
+const obj2 = {...obj, b:2};
 ```
 
-### `this` Keyword
-*   **In a regular function**, `this` refers to the object that called the function.
-*   **In an arrow function**, `this` refers to the `this` of the enclosing (parent) scope.
+---
 
-### Closures
-A closure is a function that has access to the variables in its parent scope, even after the parent function has closed.
+### Section 1.8.3: Callbacks and Higher-Order Functions
 
-```javascript
-function createCounter() {
+```js
+const nums = [1,2,3];
+const doubled = nums.map(n => n*2);
+```
+
+---
+
+### Section 1.8.4: Closures
+
+**Theory**  
+A closure is when a function “remembers” variables from its creation scope.
+
+```js
+function makeCounter() {
   let count = 0;
-  return function() {
-    count++;
-    return count;
-  };
+  return () => ++count;
 }
 
-const counter1 = createCounter();
-console.log(counter1()); // 1
-console.log(counter1()); // 2
+const c = makeCounter();
+c(); // 1
+c(); // 2
+```
+
+**Why it matters**  
+Closures power encapsulation, factories, and async patterns.
+
+---
+
+**Mini-exercises (Part 1)**
+1. Write a function that returns another function to multiply by `n`.
+2. Implement `once(fn)` that allows a function to be called only once.
+3. Convert a function declaration to arrow form without changing behavior.
+
+---
+
+# Part 2: Data Structures & Built-ins
+
+---
+
+## Chapter 2.1: Arrays
+
+### Section 2.1.1: Core Ideas
+
+**Theory**  
+Arrays are ordered, 0-indexed lists. JS arrays are dynamic and can hold mixed types.
+
+```js
+const xs = [1, "two", true];
+xs.length;   // 3
+xs[0];       // 1
 ```
 
 ---
 
-# Part 3: Working with Data
+### Section 2.1.2: Common Methods
+
+```js
+xs.push(4); xs.pop();
+xs.shift(); xs.unshift(0);
+
+xs.map(x => x);
+xs.filter(x => x);
+xs.reduce((a,b)=>a+b, 0);
+xs.find(x => x > 2);
+xs.includes(2);
+```
 
 ---
 
-## Chapter 7: Built-in Methods for Data Types
+### Section 2.1.3: Modern Array Methods
 
-### String Methods
-*   `length`: Property to get the length.
-*   `slice(start, end)`: Extracts a part of a string.
-*   `toUpperCase() / toLowerCase()`: Converts to upper/lower case.
-*   `trim()`: Removes whitespace from both ends.
-*   `split(separator)`: Splits a string into an array of substrings.
-*   `includes(substring)`: Checks if a string contains a substring.
+**Copy-by-change methods** ✅ (ES2023)  
+These return new arrays instead of mutating:
 
-### Array Methods
-Arrays in JavaScript come with a rich set of built-in methods.
+```js
+const a = [3,1,2];
 
-#### Methods that Mutate the Original Array
-*   `push(item)`: Adds an item to the end.
-*   `pop()`: Removes the last item.
-*   `shift()`: Removes the first item.
-*   `unshift(item)`: Adds an item to the beginning.
-*   `splice(start, deleteCount, item1, ...)`: Adds/Removes items from an array.
-*   `sort()`: Sorts the array.
-
-#### Methods for Iteration (Do Not Mutate)
-*   `forEach(callback)`: Executes a provided function once for each array element.
-*   `map(callback)`: Creates a new array with the results of calling a provided function on every element.
-*   `filter(callback)`: Creates a new array with all elements that pass the test implemented by the provided function.
-*   `reduce(callback, initialValue)`: Executes a reducer function on each element, resulting in a single output value.
-
-```javascript
-const numbers = [1, 2, 3, 4, 5];
-const doubled = numbers.map(n => n * 2); // [2, 4, 6, 8, 10]
-const evens = numbers.filter(n => n % 2 === 0); // [2, 4]
-const sum = numbers.reduce((total, n) => total + n, 0); // 15
+a.toSorted();     // [1,2,3]
+a.toReversed();   // [2,1,3]
+a.toSpliced(1,1); // removes index 1 in a copy
+a.with(0, 99);    // [99,1,2]
 ```
 
-### Object Methods
-*   `Object.keys(obj)`: Returns an array of a given object's own enumerable property names.
-*   `Object.values(obj)`: Returns an array of a given object's own enumerable property values.
-*   `Object.entries(obj)`: Returns an array of a given object's own enumerable string-keyed property `[key, value]` pairs.
-*   `Object.assign(target, ...sources)`: Copies all enumerable own properties from one or more source objects to a target object.
+`findLast` / `findLastIndex` ✅ (ES2023)
+
+```js
+[1,2,3,4].findLast(n => n%2===0); // 4
+```
+
+`.at()` ✅
+
+```js
+a.at(-1); // last element
+```
+
+---
+
+### Section 2.1.4: Destructuring
+
+```js
+const [first, , third] = [10,20,30];
+const [a1=1, b1=2] = [];
+```
+
+---
+
+## Chapter 2.2: Objects
+
+### Section 2.2.1: Properties and Access
+
+**Theory**  
+Objects store key-value pairs. Keys are strings or symbols.
+
+```js
+const user = { name: "A", age: 30 };
+user.name;
+user["age"];
+```
+
+Computed keys ✅:
+
+```js
+const key = "likesJS";
+const o = { [key]: true };
+```
+
+---
+
+### Section 2.2.2: Destructuring and Defaults
+
+```js
+const { name, city="Unknown" } = user;
+```
+
+---
+
+### Section 2.2.3: Immutability Patterns
+
+**Theory**  
+To avoid bugs, especially in async/stateful code, prefer copying:
+
+```js
+const u2 = { ...user, age: 31 };
+```
+
+Deep copy ✅:
+
+```js
+const copy = structuredClone(user);
+```
+
+---
+
+### Section 2.2.4: Prototypes (preview to Part 3)
+
+Every object has a prototype; properties not found on the object are looked up there.
+
+---
+
+## Chapter 2.3: Map / Set / WeakMap / WeakSet
+
+### Section 2.3.1: Map
+
+**Theory**  
+Map supports any key type and preserves insertion order.
+
+```js
+const m = new Map();
+m.set("a", 1);
+m.set({x:1}, 2);
+m.get("a"); // 1
+```
+
+---
+
+### Section 2.3.2: Set
+
+**Theory**  
+Set stores unique values.
+
+```js
+const s = new Set([1,2,2,3]);
+[...s]; // [1,2,3]
+```
+
+---
+
+### Section 2.3.3: WeakMap / WeakSet
+
+**Theory**  
+They hold **weak references** to object keys/values which can be GC’d, useful for caching without leaks.
+
+```js
+const wm = new WeakMap();
+const obj = {};
+wm.set(obj, "meta");
+```
+
+---
+
+## Chapter 2.4: JSON
+
+```js
+const str = JSON.stringify({a:1});
+const obj = JSON.parse(str);
+```
+
+**Theory**  
+JSON is a data exchange format, not a JS object. It forbids functions, `undefined`, and symbols.
+
+---
+
+## Chapter 2.5: Date & Time + Temporal
+
+**Theory**  
+`Date` is legacy and mutable. It represents an instant in milliseconds since epoch.
+
+```js
+const d = new Date();
+d.toISOString();
+```
+
+**Temporal** 🧭  
+Temporal is a TC39 proposal aimed to fix Date’s issues (time zones, immutability).
+
+---
+
+## Chapter 2.6: Intl APIs
+
+**Theory**  
+Built-in internationalization utilities.
+
+```js
+new Intl.NumberFormat("en-IN").format(1234567.89);
+new Intl.DateTimeFormat("en-GB", { dateStyle: "long" }).format(new Date());
+new Intl.Collator("de").compare("ä", "z");
+```
+
+---
+
+**Mini-exercises (Part 2)**
+1. Given orders with `{category, amount}`, group by category using `Object.groupBy` (Part 6).
+2. Write a function that returns a new sorted array without mutating input.
+3. Use Map to count word frequencies.
+
+---
+
+# Part 3: Deep JavaScript
+
+---
+
+## Chapter 3.1: Execution Model
+
+### Section 3.1.1: Call Stack, Heap, Event Loop
+
+**Theory**  
+- **Call stack:** tracks function calls (LIFO).
+- **Heap:** stores objects.
+- **Event loop:** runs tasks when stack is empty.
+
+**Event loop diagram (ASCII)**
+
+```
+┌─────────────┐
+│ Call Stack  │ ← sync code runs here
+└─────┬───────┘
+      │ empty?
+      v
+┌─────────────┐
+│ Microtasks  │ ← promises/queueMicrotask
+└─────┬───────┘
+      v
+┌─────────────┐
+│ Macrotasks  │ ← timers, IO, UI events
+└─────────────┘
+      |
+      v
+ repeat
+```
+
+Microtasks always run **before** the next macrotask.
+
+```js
+console.log("A");
+setTimeout(()=>console.log("B"), 0);
+Promise.resolve().then(()=>console.log("C"));
+console.log("D");
+// A D C B
+```
+
+---
+
+## Chapter 3.2: Prototypes & Inheritance
+
+**Theory**  
+JS uses **prototype-based inheritance**. Objects delegate to prototypes.
+
+```js
+const animal = { eats: true };
+const dog = Object.create(animal);
+dog.barks = true;
+
+dog.eats; // true (from prototype)
+```
+
+**Prototype chain diagram (ASCII)**
+
+```
+dog --> animal --> Object.prototype --> null
+```
+
+---
+
+## Chapter 3.3: Classes (Syntax over Prototypes)
+
+**Theory**  
+`class` is modern syntax that still uses prototypes.
+
+```js
+class Person {
+  #secret = "shh";         // private field ✅
+  constructor(name) { this.name = name; }
+  greet() { return `Hi ${this.name}`; }
+  static species() { return "Homo sapiens"; }
+  get upper() { return this.name.toUpperCase(); }
+  set upper(v) { this.name = v.toLowerCase(); }
+}
+
+class Employee extends Person {
+  constructor(name, role) {
+    super(name);
+    this.role = role;
+  }
+}
+```
+
+---
+
+## Chapter 3.4: Modules
+
+### Section 3.4.1: ESM
+
+```js
+export const x = 1;
+export default function f(){}
+import f, { x } from "./m.js";
+```
+
+### Section 3.4.2: Dynamic Import ✅
+
+```js
+const mod = await import("./m.js");
+```
+
+### Section 3.4.3: ESM vs CJS
+
+**Theory**  
+ESM is static and analyzable; CJS is runtime/imperative.
+
+---
+
+## Chapter 3.5: Iterators & Generators
+
+**Theory**  
+An **iterable** has `[Symbol.iterator]`.
+
+```js
+for (const x of [1,2,3]) {}
+```
+
+Custom iterator:
+
+```js
+const range = {
+  start: 1, end: 3,
+  [Symbol.iterator]() {
+    let cur = this.start;
+    return {
+      next: () =>
+        cur <= this.end
+          ? { value: cur++, done: false }
+          : { done: true }
+    };
+  }
+};
+[...range]; // [1,2,3]
+```
+
+Generators ✅:
+
+```js
+function* gen() {
+  yield 1; yield 2;
+}
+```
+
+Async generators ✅:
+
+```js
+async function* chunks(stream) {
+  for await (const c of stream) yield c;
+}
+```
+
+---
+
+## Chapter 3.6: Error Handling
+
+**Theory**  
+Errors are objects. `try/catch` handles runtime failures.
+
+```js
+try {
+  risky();
+} catch (e) {
+  console.error(e.message);
+} finally {
+  cleanup();
+}
+
+class ValidationError extends Error {}
+throw new ValidationError("Bad input");
+```
+
+---
+
+## Chapter 3.7: Memory & GC Basics
+
+**Theory**  
+JS runtimes automatically garbage collect unreachable objects. Common leak patterns:
+- Long-lived globals holding large data
+- Detached DOM nodes retained in closures
+- Unbounded caches/maps
+
+---
+
+**Mini-exercises (Part 3)**
+1. Build a custom iterable `range(n)`.
+2. Create a `class Stack` using private fields.
+3. Explain output order of a mixed Promise/timeout snippet.
 
 ---
 
@@ -245,127 +805,322 @@ const sum = numbers.reduce((total, n) => total + n, 0); // 15
 
 ---
 
-## Chapter 8: The Asynchronous Model
+## Chapter 4.1: Callbacks → Promises → async/await
 
-JavaScript is single-threaded, but it handles long-running operations (like network requests) without freezing the user interface by using an **event loop**.
+**Theory**  
+Async evolved:
 
-```
-                        +----------------+
-                        |   Call Stack   |
-                        +----------------+
-                                ^
-                                | (Push/Pop)
-+------------------------------------------------------------------+
-|                                                                  |
-|   +----------------+     +----------------+     +--------------+ |
-|   | Web APIs       |---->| Callback Queue |---->| Event Loop   | |
-|   | (setTimeout,   |     | (onClick,      |     | (Pushes to   | |
-|   |  fetch)        |     |  onLoad)       |     |  Call Stack) | |
-|   +----------------+     +----------------+     +--------------+ |
-|                                                                  |
-+------------------------------------------------------------------+
+1. **Callbacks:** nested, error-prone
+2. **Promises:** chainable, standard
+3. **async/await:** readable sync-style
+
+Callback:
+
+```js
+fs.readFile("a.txt", (err, data) => {});
 ```
 
-## Chapter 9: Handling Asynchronicity
+Promise ✅:
 
-### Callbacks
-The original method, where a function is passed as an argument to be executed after an operation completes. Can lead to "Callback Hell."
-
-### Promises
-A `Promise` is an object representing the eventual completion or failure of an asynchronous operation.
-
-```javascript
-const myPromise = new Promise((resolve, reject) => {
-  setTimeout(() => {
-    resolve("Success!");
-  }, 1000);
-});
-
-myPromise
-  .then(result => console.log(result)) // "Success!"
-  .catch(error => console.error(error));
+```js
+fetch("/api")
+  .then(r => r.json())
+  .catch(console.error);
 ```
-*   `Promise.all(promises)`: Fulfills when all promises fulfill.
-*   `Promise.race(promises)`: Fulfills or rejects as soon as one of the promises fulfills or rejects.
-*   `Promise.allSettled(promises)`: Fulfills after all promises have settled (either fulfilled or rejected).
 
-### `async/await`
-Modern syntactic sugar over promises that makes asynchronous code look synchronous.
+async/await ✅:
 
-*   `async` keyword before a function makes it return a promise.
-*   `await` keyword pauses the function execution until a promise is settled.
+```js
+async function load() {
+  const r = await fetch("/api");
+  return r.json();
+}
+```
 
-```javascript
-async function fetchData() {
-  try {
-    const response = await fetch('https://api.example.com/data');
-    const data = await response.json();
-    console.log(data);
-  } catch (error) {
-    console.error("Could not fetch data:", error);
+---
+
+## Chapter 4.2: Promise Combinators
+
+| Method | Behavior |
+|---|---|
+| `Promise.all` | fails fast, waits all |
+| `Promise.allSettled` | never fails, returns status |
+| `Promise.race` | settles first |
+| `Promise.any` | first fulfilled, ignores rejects |
+
+```js
+await Promise.all([p1, p2]);
+await Promise.any([p1, p2]);
+```
+
+---
+
+## Chapter 4.3: async iteration
+
+```js
+for await (const line of lines(url)) {
+  console.log(line);
+}
+```
+
+---
+
+## Chapter 4.4: Top-level await ✅
+
+Only in ESM:
+
+```js
+const r = await fetch("/api");
+```
+
+---
+
+## Chapter 4.5: AbortController & Cancellation
+
+**Theory**  
+Some async ops support cancellation using signals.
+
+```js
+const ac = new AbortController();
+const p = fetch("/api", { signal: ac.signal });
+ac.abort(); // cancels
+```
+
+---
+
+**Mini-exercises (Part 4)**
+1. Load two APIs in parallel and handle partial failure.
+2. Implement a timeout wrapper using `AbortController`.
+
+---
+
+# Part 5: Browser + Node Essentials
+
+---
+
+## Chapter 5.1: DOM Basics
+
+**Theory**  
+DOM is the browser’s in-memory tree representation of HTML.
+
+Querying:
+
+```js
+const el = document.querySelector("#btn");
+```
+
+Events:
+
+```js
+el.addEventListener("click", e => console.log("clicked"));
+```
+
+Bubbling/capturing:
+
+```js
+parent.addEventListener("click", () => console.log("bubble"));
+parent.addEventListener("click", () => console.log("capture"), true);
+```
+
+---
+
+## Chapter 5.2: Fetch API ✅
+
+```js
+const r = await fetch("/users");
+const users = await r.json();
+```
+
+---
+
+## Chapter 5.3: Storage
+
+**Theory**
+- `localStorage`: persistent key/value string store.
+- `sessionStorage`: per-tab session store.
+- Cookies: sent with requests, size-limited.
+
+```js
+localStorage.setItem("theme", "dark");
+```
+
+---
+
+## Chapter 5.4: Node.js Essentials
+
+**fs/promises**:
+
+```js
+import { readFile } from "node:fs/promises";
+const txt = await readFile("a.txt", "utf8");
+```
+
+**path**:
+
+```js
+import path from "node:path";
+path.join(process.cwd(), "data", "a.txt");
+```
+
+**events**:
+
+```js
+import { EventEmitter } from "node:events";
+const em = new EventEmitter();
+em.on("done", () => console.log("done"));
+em.emit("done");
+```
+
+**streams (overview)**  
+Streams are lazy data flows; used for files, HTTP, large payloads.
+
+---
+
+## Chapter 5.5: CLI Basics with Node
+
+```js
+#!/usr/bin/env node
+console.log(process.argv.slice(2));
+```
+
+Run:
+
+```bash
+chmod +x tool.js
+./tool.js hello
+```
+
+---
+
+**Mini-exercises (Part 5)**
+1. Build a tiny CLI that reads a file and prints line count.
+2. Add a click handler that toggles a CSS class.
+
+---
+
+# Part 6: Modern ES Features Cheat Sheet
+
+---
+
+## Chapter 6.1: ES2015+ Highlights
+
+- `let`, `const`
+- Arrow functions
+- Template literals
+- Destructuring
+- Default params, rest/spread
+- Classes + private fields
+- Modules
+- Promises, async/await, top-level await
+- `Map` / `Set`, weak collections
+- Optional chaining, nullish coalescing
+- `BigInt`
+- Numeric separators
+- `replaceAll`
+- `Promise.any`, `allSettled`
+- `structuredClone`
+- Copy-by-change arrays (`toSorted`, `with`, etc.)
+
+---
+
+## Chapter 6.2: Recent Spec Features (ES2024–ES2025)
+
+- `Object.groupBy`, `Map.groupBy`
+- `Promise.withResolvers`
+- New `Set` operations
+- Iterator helpers / `Iterator.from`
+- `Promise.try`
+- `RegExp.escape`
+- `Float16Array`
+
+Example:
+
+```js
+const grouped = Object.groupBy(
+  ["a","bb","c"],
+  s => s.length
+);
+// { 1: ["a","c"], 2: ["bb"] }
+```
+
+---
+
+## Chapter 6.3: TC39 Proposals Worth Watching 🧭
+
+- Decorators
+- Pattern Matching
+- Temporal
+- Pipeline operator
+- Import Attributes
+
+---
+
+# Part 7: Ecosystem & Best Practices
+
+---
+
+## Chapter 7.1: npm Basics
+
+```json
+{
+  "type": "module",
+  "scripts": {
+    "dev": "node index.js",
+    "test": "vitest",
+    "lint": "eslint ."
   }
 }
 ```
 
 ---
 
-# Part 5: OOP and Modules
+## Chapter 7.2: ESLint + Prettier
+
+**Theory**  
+- ESLint catches bugs and enforces rules.
+- Prettier ensures consistent formatting.
 
 ---
 
-## Chapter 10: ES6 Classes
-Classes are a template for creating objects. They are syntactic sugar over JavaScript's existing prototype-based inheritance.
+## Chapter 7.3: Testing Tools
 
-```javascript
-class Animal {
-  constructor(name) {
-    this.name = name;
-  }
+- Jest / Vitest (unit)
+- Playwright / Cypress (E2E)
 
-  speak() {
-    console.log(`${this.name} makes a noise.`);
-  }
-}
-
-class Dog extends Animal {
-  constructor(name, breed) {
-    super(name); // call the parent constructor
-    this.breed = breed;
-  }
-
-  speak() {
-    console.log(`${this.name} barks.`);
-  }
-}
-
-const myDog = new Dog('Buddy', 'Golden Retriever');
-myDog.speak(); // 'Buddy barks.'
+```js
+import { test, expect } from "vitest";
+test("add", () => expect(1+2).toBe(3));
 ```
 
-## Chapter 11: Modules
-Modules allow you to split your code into separate, reusable files.
+---
 
-### Named Exports
-```javascript
-// 📁 utils.js
-export const PI = 3.14;
-export function double(n) {
-  return n * 2;
-}
+## Chapter 7.4: TypeScript Overview
 
-// 📁 main.js
-import { PI, double } from './utils.js';
-console.log(double(PI));
+**Theory**  
+TypeScript adds static types while compiling to JS. Use it for larger or long-lived projects.
+
+---
+
+## Chapter 7.5: Recommended Project Structure
+
+```
+src/
+  index.js
+  lib/
+  routes/
+test/
+package.json
+eslint.config.js
 ```
 
-### Default Export
-A file can have only one default export.
-```javascript
-// 📁 User.js
-export default class User {
-  // ...
-}
+---
 
-// 📁 main.js
-import MyUser from './User.js'; // Can be named anything
-```
+**Mini-exercises (Part 7)**
+1. Set up ESLint + Prettier.
+2. Write unit tests for a small utility module.
+
+---
+
+# Final Notes
+
+You now have a full-spectrum JavaScript foundation with core mechanics and modern ES2025 features. Prefer modern patterns (`const`, ESM, async/await, immutable array methods), and verify proposal/runtime support before using stage features in production.
